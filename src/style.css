@@ -1,0 +1,78 @@
+* {
+  box-sizing: border-box;
+}
+html, body, #root {
+  height: 100%;
+}
+html, body, #root {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+}
+@media screen and (min-width: 700px) {
+  .chat {
+    max-width: 600px;
+    position:absolute;
+    bottom: 0;
+    height: calc(100% - 80px);
+    right: 50px;
+    border: 1px solid #ccc;
+    box-shadow: 8px 8px 12px #aaa;
+  }
+}
+.chat-hints {
+  padding: 20px;
+}
+.chat-hints:empty {
+  padding: 0px;
+}
+.chat-hints > button::first-letter {
+  text-transform: uppercase;
+}
+.chat-output {
+  flex: 1 0 0;
+  padding: 20px;
+  display: flex;
+  background: white;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow-y: hidden;
+}
+.chat-output > div {
+  margin: 0 0 20px 0;
+  color: white;
+}
+.chat-output .user-message .message {
+  background: #0FB0DF;
+}
+.chat-output .bot-message {
+  text-align: right;
+}
+.chat-output .bot-message .message {
+  background: lightsalmon;
+}
+.chat-output .message {
+  display: inline-block;
+  max-width: 75%;
+  padding: 12px 20px;
+  border-radius: 10px;
+}
+.chat-input {
+  padding: 20px;
+  background: #eee;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+}
+.chat-input .user-input {
+  width: 100%;
+  font-size: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+}

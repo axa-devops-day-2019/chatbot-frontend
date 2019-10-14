@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: The Bot frontend and S3 bucket static site
+Parameters:
+  S3BucketName:
+    Type: String
+    Default: axa-bot-devops-lab
+    Description: The S3 bucket name
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !Ref S3BucketName
+      MetricsConfigurations: 
+        - Id: EntireBucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Statement:
+          -
+            Action:
+              - "s3:GetObject"
+            Effect: "Allow"
+            Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket, '/*']]
+            Principal: 
+              AWS: !Join ['', ['arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ', !Ref CDNOriginAID]] 
+  CDNOriginAID:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: Secure your Amazon S3 content
+  CDNDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+        - DomainName: !GetAtt [S3Bucket, DomainName]
+          Id: botS3Origin
+          S3OriginConfig:
+            OriginAccessIdentity: !Join ['', ['origin-access-identity/cloudfront/', !Ref CDNOriginAID]]
+        Enabled: 'true'
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - DELETE
+          - GET
+          - HEAD
+          - OPTIONS
+          - PATCH
+          - POST
+          - PUT
+          TargetOriginId: botS3Origin
+          ForwardedValues:
+            QueryString: 'false'
+            Cookies:
+              Forward: none
+          ViewerProtocolPolicy: redirect-to-https 
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: 'true'
+Outputs:
+  CDNDomain:
+    Value: !GetAtt [CDNDistribution, DomainName]
+    Description: The CloudFront URL
+  S3WebsiteURL:
+    Value: !GetAtt [S3Bucket, WebsiteURL]
+    Description: The S3 website URL
+  S3BucketSecureURL:
+    Value: !Join ['', ['https://', !GetAtt [S3Bucket, DomainName]]]
+    Description: The S3 HTTPS website address
